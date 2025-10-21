@@ -91,7 +91,6 @@ EOF
 
 success "Docker container deployed successfully."
 
-
 # =====================================================
 # STEP 6 — CONFIGURE NGINX REVERSE PROXY
 # =====================================================
@@ -104,8 +103,8 @@ server {
     server_name _;
     location / {
         proxy_pass http://localhost:$APP_PORT;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header Host \\\$host;
+        proxy_set_header X-Real-IP \\\$remote_addr;
     }
 }
 EOL'
