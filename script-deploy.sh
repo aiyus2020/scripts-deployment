@@ -98,7 +98,7 @@ ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" << 'EOF'
   docker ps -q --filter "name=myapp" | grep -q . && docker stop myapp && docker rm myapp
 
   echo "Running new container..."
-  docker run -d -p 80:80 --name myapp myapp
+  docker run -d -p 8082:80 --name myapp myapp
 EOF
 
 success "Docker container deployed successfully."

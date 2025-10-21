@@ -1,0 +1,21 @@
+
+=== 🧠 Deployment Setup ===
+Enter GitHub Repo URL: Enter GitHub Personal Access Token: Enter Branch name (default: main): Enter SSH Username: Enter Server IP Address: Enter SSH Key Path: Enter Application Port: [INFO] Cloning repository...
+Cloning into 'scripts-deployment'...
+Already on 'main'
+Your branch is up to date with 'origin/main'.
+[SUCCESS] Repository ready at branch 'main'.
+[INFO] Connecting to remote server and installing dependencies...
+Pseudo-terminal will not be allocated because stdin is not a terminal.
+Warning: Permanently added '54.91.95.64' (ED25519) to the list of known hosts.
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@         WARNING: UNPROTECTED PRIVATE KEY FILE!          @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Permissions 0644 for '/home/aiyus/.ssh/terraform-deploy' are too open.
+It is required that your private key files are NOT accessible by others.
+This private key will be ignored.
+Load key "/home/aiyus/.ssh/terraform-deploy": bad permissions
+ubuntu@54.91.95.64: Permission denied (publickey).
+
+[❌ ERROR] Something failed. Check logs/deploy_20251021_231557.log for details.
+
