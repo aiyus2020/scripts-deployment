@@ -1,0 +1,101 @@
+
+=== 🧠 Deployment Setup ===
+Enter GitHub Repo URL: Enter GitHub Personal Access Token: Enter Branch name (default: main): Enter SSH Username: Enter Server IP Address: Enter SSH Key Path: Enter Application Port: [INFO] Connecting to remote server and installing dependencies...
+Pseudo-terminal will not be allocated because stdin is not a terminal.
+Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.14.0-1011-aws x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Tue Oct 21 23:26:16 UTC 2025
+
+  System load:  0.0               Processes:             119
+  Usage of /:   37.5% of 6.71GB   Users logged in:       1
+  Memory usage: 29%               IPv4 address for enX0: 172.31.23.101
+  Swap usage:   0%
+
+ * Ubuntu Pro delivers the most comprehensive open source security and
+   compliance features.
+
+   https://ubuntu.com/aws/pro
+
+Expanded Security Maintenance for Applications is not enabled.
+
+60 updates can be applied immediately.
+29 of these updates are standard security updates.
+To see these additional updates run: apt list --upgradable
+
+1 additional security update can be applied with ESM Apps.
+Learn more about enabling ESM Apps service at https://ubuntu.com/esm
+
+
+Updating system packages...
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Hit:1 http://us-east-1.ec2.archive.ubuntu.com/ubuntu noble InRelease
+Hit:2 http://us-east-1.ec2.archive.ubuntu.com/ubuntu noble-updates InRelease
+Hit:3 http://us-east-1.ec2.archive.ubuntu.com/ubuntu noble-backports InRelease
+Hit:4 http://security.ubuntu.com/ubuntu noble-security InRelease
+Reading package lists...
+Building dependency tree...
+Reading state information...
+55 packages can be upgraded. Run 'apt list --upgradable' to see them.
+Installing Docker, Docker Compose, and Nginx...
+
+WARNING: apt does not have a stable CLI interface. Reading package lists...
+Building dependency tree...Use with caution in scripts.
+
+
+Reading state information...
+docker.io is already the newest version (28.2.2-0ubuntu1~24.04.1).
+docker-compose is already the newest version (1.29.2-6ubuntu1).
+nginx is already the newest version (1.24.0-2ubuntu7.5).
+0 upgraded, 0 newly installed, 0 to remove and 55 not upgraded.
+Enabling and starting Docker service...
+Verifying installations...
+Docker version 28.2.2, build 28.2.2-0ubuntu1~24.04.1
+nginx version: nginx/1.24.0 (Ubuntu)
+[SUCCESS] Remote server setup complete.
+[INFO] Transferring project files to remote server...
+scp: dest open "/home/ubuntu/app/.git/objects/95/06084b3c10a720c5bc96626fd6b667a76bd319": Permission denied
+scp: upload "./.git/objects/95/06084b3c10a720c5bc96626fd6b667a76bd319" to "/home/ubuntu/app/.git/objects/95/06084b3c10a720c5bc96626fd6b667a76bd319" failed
+scp: dest open "/home/ubuntu/app/.git/objects/95/c14b97ec228cf486193c736288118aea04b5f5": Permission denied
+scp: upload "./.git/objects/95/c14b97ec228cf486193c736288118aea04b5f5" to "/home/ubuntu/app/.git/objects/95/c14b97ec228cf486193c736288118aea04b5f5" failed
+scp: dest open "/home/ubuntu/app/.git/objects/7c/f853237a5a83e540aa7d312a1fd5f38af0bd86": Permission denied
+scp: upload "./.git/objects/7c/f853237a5a83e540aa7d312a1fd5f38af0bd86" to "/home/ubuntu/app/.git/objects/7c/f853237a5a83e540aa7d312a1fd5f38af0bd86" failed
+scp: dest open "/home/ubuntu/app/.git/objects/dc/e1f04ec2a648c6f91e5428e2317393f869e4d5": Permission denied
+scp: upload "./.git/objects/dc/e1f04ec2a648c6f91e5428e2317393f869e4d5" to "/home/ubuntu/app/.git/objects/dc/e1f04ec2a648c6f91e5428e2317393f869e4d5" failed
+scp: dest open "/home/ubuntu/app/.git/objects/d0/09bd7c1b05e69a862dd8ca3e80e5989e943709": Permission denied
+scp: upload "./.git/objects/d0/09bd7c1b05e69a862dd8ca3e80e5989e943709" to "/home/ubuntu/app/.git/objects/d0/09bd7c1b05e69a862dd8ca3e80e5989e943709" failed
+scp: dest open "/home/ubuntu/app/.git/objects/ce/f9304cecae662a66af8e28a85a878fc4aa0cbd": Permission denied
+scp: upload "./.git/objects/ce/f9304cecae662a66af8e28a85a878fc4aa0cbd" to "/home/ubuntu/app/.git/objects/ce/f9304cecae662a66af8e28a85a878fc4aa0cbd" failed
+scp: dest open "/home/ubuntu/app/.git/objects/86/9a195908feb78eedd1311411b4388667f167ca": Permission denied
+scp: upload "./.git/objects/86/9a195908feb78eedd1311411b4388667f167ca" to "/home/ubuntu/app/.git/objects/86/9a195908feb78eedd1311411b4388667f167ca" failed
+scp: dest open "/home/ubuntu/app/.git/objects/b4/6b572b0baa359901b65dffd7e78ff586452cc5": Permission denied
+scp: upload "./.git/objects/b4/6b572b0baa359901b65dffd7e78ff586452cc5" to "/home/ubuntu/app/.git/objects/b4/6b572b0baa359901b65dffd7e78ff586452cc5" failed
+scp: dest open "/home/ubuntu/app/.git/objects/98/681a8d51449ae220c7429a71128d1525b9c764": Permission denied
+scp: upload "./.git/objects/98/681a8d51449ae220c7429a71128d1525b9c764" to "/home/ubuntu/app/.git/objects/98/681a8d51449ae220c7429a71128d1525b9c764" failed
+scp: dest open "/home/ubuntu/app/.git/objects/b8/1081598e43525197de583d31a2aef118ac3556": Permission denied
+scp: upload "./.git/objects/b8/1081598e43525197de583d31a2aef118ac3556" to "/home/ubuntu/app/.git/objects/b8/1081598e43525197de583d31a2aef118ac3556" failed
+scp: dest open "/home/ubuntu/app/.git/objects/dd/99e2bf3e26b37847c42ce7713a435009651ac3": Permission denied
+scp: upload "./.git/objects/dd/99e2bf3e26b37847c42ce7713a435009651ac3" to "/home/ubuntu/app/.git/objects/dd/99e2bf3e26b37847c42ce7713a435009651ac3" failed
+scp: dest open "/home/ubuntu/app/.git/objects/0d/558eb2a3f1cd3e8483949967dc773132af4a90": Permission denied
+scp: upload "./.git/objects/0d/558eb2a3f1cd3e8483949967dc773132af4a90" to "/home/ubuntu/app/.git/objects/0d/558eb2a3f1cd3e8483949967dc773132af4a90" failed
+scp: dest open "/home/ubuntu/app/.git/objects/6f/5d126e351259cbdd0fab9d8bd0a3ed6638e3cf": Permission denied
+scp: upload "./.git/objects/6f/5d126e351259cbdd0fab9d8bd0a3ed6638e3cf" to "/home/ubuntu/app/.git/objects/6f/5d126e351259cbdd0fab9d8bd0a3ed6638e3cf" failed
+scp: dest open "/home/ubuntu/app/.git/objects/77/6462c6e7d5007969451f2c25a5fa5dccc6ef92": Permission denied
+scp: upload "./.git/objects/77/6462c6e7d5007969451f2c25a5fa5dccc6ef92" to "/home/ubuntu/app/.git/objects/77/6462c6e7d5007969451f2c25a5fa5dccc6ef92" failed
+scp: dest open "/home/ubuntu/app/.git/objects/c1/82db324a5e6d42c9342993eaa89dc880772379": Permission denied
+scp: upload "./.git/objects/c1/82db324a5e6d42c9342993eaa89dc880772379" to "/home/ubuntu/app/.git/objects/c1/82db324a5e6d42c9342993eaa89dc880772379" failed
+scp: dest open "/home/ubuntu/app/.git/objects/e4/e755c6b9fbbfacf7a6fa427e558abc4cd3bb81": Permission denied
+scp: upload "./.git/objects/e4/e755c6b9fbbfacf7a6fa427e558abc4cd3bb81" to "/home/ubuntu/app/.git/objects/e4/e755c6b9fbbfacf7a6fa427e558abc4cd3bb81" failed
+scp: dest open "/home/ubuntu/app/.git/objects/4e/bf1905066f24f8b9a5f140dcad21747cead9d7": Permission denied
+scp: upload "./.git/objects/4e/bf1905066f24f8b9a5f140dcad21747cead9d7" to "/home/ubuntu/app/.git/objects/4e/bf1905066f24f8b9a5f140dcad21747cead9d7" failed
+scp: dest open "/home/ubuntu/app/.git/objects/97/e310a0393afdc32f37f47e4c3000632f39380c": Permission denied
+scp: upload "./.git/objects/97/e310a0393afdc32f37f47e4c3000632f39380c" to "/home/ubuntu/app/.git/objects/97/e310a0393afdc32f37f47e4c3000632f39380c" failed
+scp: failed to upload directory . to /home/ubuntu/app
+
+[❌ ERROR] Something failed. Check logs/deploy_20251022_002143.log for details.
+

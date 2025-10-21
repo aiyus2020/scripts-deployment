@@ -63,7 +63,8 @@ success "Remote server setup complete."
 # STEP 4 — TRANSFER PROJECT FILES
 # =====================================================
 info "Transferring project files to remote server..."
-scp -i "$SSH_KEY" -r . "$SSH_USER@$SERVER_IP:/home/$SSH_USER/app"
+scp -i "$SSH_KEY" -r --exclude='.git' ./ "$SSH_USER@$SERVER_IP:/home/$SSH_USER/app"
+
 success "Project files successfully transferred."
 
 # =====================================================
