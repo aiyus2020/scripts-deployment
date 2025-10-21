@@ -34,22 +34,6 @@ read -p "Enter Server IP Address: " SERVER_IP
 read -p "Enter SSH Key Path: " SSH_KEY
 read -p "Enter Application Port: " APP_PORT
 
-REPO_NAME=$(basename -s .git "$REPO_URL")
-
-# =====================================================
-# STEP 2 — CLONE OR UPDATE REPOSITORY
-# =====================================================
-if [ -d "$REPO_NAME" ]; then
-  info "Repository already exists. Pulling latest changes..."
-  cd "$REPO_NAME" && git pull
-else
-  info "Cloning repository..."
-  git clone https://${PAT}@${REPO_URL#https://} && cd "$REPO_NAME"
-fi
-
-git checkout "$BRANCH"
-success "Repository ready at branch '$BRANCH'."
-
 # =====================================================
 # STEP 3 — REMOTE SERVER SETUP
 # =====================================================
@@ -94,14 +78,19 @@ ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" << 'EOF'
   echo "Building Docker image..."
   docker build -t myapp .
 
-  echo "Stopping and removing old container (if any)..."
-  docker ps -q --filter "name=myapp" | grep -q . && docker stop myapp && docker rm myapp
+  echo "Checking for existing myapp container..."
+  # Stop and remove old container if it exists (running or stopped)
+  if [ "$(docker ps -a -q -f name=myapp)" ]; then
+    echo "Removing existing myapp container..."
+    docker rm -f myapp
+  fi
 
   echo "Running new container..."
   docker run -d -p 8082:80 --name myapp myapp
 EOF
 
 success "Docker container deployed successfully."
+
 
 # =====================================================
 # STEP 6 — CONFIGURE NGINX REVERSE PROXY
