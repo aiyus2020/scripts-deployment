@@ -126,7 +126,7 @@ services:
     image: nginx:latest
     container_name: nginx
     ports:
-      - "80:80"                 # ✅ Expose publicly for web access
+      - "8080:80"               # ✅ Use 8080 instead of 80 to avoid conflicts
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
@@ -159,9 +159,9 @@ success "Containers deployed successfully."
 info "Validating deployment..."
 ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
 docker ps
-curl -I http://localhost || true
+curl -I http://localhost:8080 || true
 EOF
 
-success "Deployment completed! Visit your app at http://$SERVER_IP"
+success "Deployment completed! Visit your app at http://$SERVER_IP:8080"
 
 echo -e "\n🎉 Deployment logs saved to $LOG_FILE\n"
