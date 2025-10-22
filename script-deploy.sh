@@ -31,7 +31,7 @@ BRANCH=${BRANCH:-main}
 read -p "Enter SSH Username: " SSH_USER
 read -p "Enter Server IP Address: " SERVER_IP
 read -p "Enter SSH Key Path: " SSH_KEY
-read -p "Enter Application Internal Port (container port, e.g., 80): " APP_PORT
+read -p "Enter Application Port inside container (usually 80): " APP_PORT
 
 # =====================================================
 # STEP 2 — PREPARE REMOTE DIRECTORY
@@ -88,7 +88,7 @@ server {
     server_name _;
 
     location / {
-        proxy_pass http://app:$APP_PORT;
+        proxy_pass http://app:80;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -111,18 +111,17 @@ version: '3.9'
 services:
   app:
     build: .
-    container_name: myappservice
+    container_name: app
     expose:
-      - "$APP_PORT"
+      - "80"
     networks:
       - webnet
 
   nginx:
     image: nginx:latest
-    restart: always
     container_name: nginx
     ports:
-      - "5007:80"
+      - "80:80"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
