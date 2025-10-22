@@ -100,14 +100,17 @@ success "Docker container deployed successfully."
 # STEP 6 — CONFIGURE NGINX REVERSE PROXY
 # =====================================================
 info "Configuring Nginx reverse proxy..."
-ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<'EOF'
+ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
 set -e
+
+# Use sudo to write Nginx config safely
 sudo bash -c "cat > /etc/nginx/sites-available/default <<NGINXCONF
 server {
     listen 80;
     server_name _;
+
     location / {
-        proxy_pass http://localhost:8082;
+        proxy_pass http://localhost:$APP_PORT;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -119,11 +122,16 @@ server {
 }
 NGINXCONF"
 
-echo "[REMOTE] Testing and reloading Nginx..."
+# Test Nginx configuration
+echo "[REMOTE] Testing Nginx config..."
 sudo nginx -t
+
+# Reload Nginx to apply changes
 sudo systemctl reload nginx
 EOF
+
 success "Nginx configured successfully."
+
 
 # =====================================================
 # STEP 7 — VALIDATE DEPLOYMENT
