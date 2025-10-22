@@ -2,7 +2,7 @@
 # =====================================================
 # HNG DevOps Stage 1 Project - Remote Deployment Script
 # Author: AiyusTech
-# Description: Deploys a Dockerized app with Nginx reverse proxy using Docker Compose
+# Description: Deploys a Dockerized app with Docker Compose and Nginx reverse proxy
 # =====================================================
 
 set -e
@@ -30,7 +30,7 @@ BRANCH=${BRANCH:-main}
 read -p "Enter SSH Username: " SSH_USER
 read -p "Enter Server IP Address: " SERVER_IP
 read -p "Enter SSH Key Path: " SSH_KEY
-read -p "Enter Application Port (host port to expose app, e.g., 8080): " APP_PORT
+read -p "Enter Application Port (host port to map to container 80): " APP_PORT
 
 # =====================================================
 # STEP 2 — PREPARE REMOTE DIRECTORY
@@ -61,75 +61,79 @@ EOF
 success "Repository cloned/updated on remote server."
 
 # =====================================================
-# STEP 4 — INSTALL DOCKER AND DOCKER COMPOSE
+# STEP 4 — INSTALL DEPENDENCIES
 # =====================================================
-info "Installing Docker and Docker Compose..."
+info "Installing Docker, Docker Compose, and Nginx..."
 ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<'EOF'
   set -e
   sudo apt update -y
-  sudo apt install -y docker.io docker-compose
+  sudo apt install -y docker.io docker-compose nginx
   sudo systemctl enable docker
   sudo systemctl start docker
+  sudo usermod -aG docker $USER
   docker --version
-  docker-compose --version
+  nginx -v
 EOF
 success "Dependencies installed successfully."
 
 # =====================================================
-# STEP 5 — CREATE DOCKER COMPOSE CONFIG AND RUN
+# STEP 5 — CREATE DOCKER COMPOSE FILE
 # =====================================================
-info "Creating Docker Compose configuration and starting containers..."
+info "Creating Docker Compose file on server..."
 ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
-set -e
-cd /home/$SSH_USER/app
-
-# Create docker-compose.yml
-cat > docker-compose.yml <<COMPOSE
+  cd /home/$SSH_USER/app
+  cat > docker-compose.yml <<COMPOSE
 version: '3.8'
-
 services:
   app:
     build: .
     container_name: myapp
-    expose:
-      - "80"
-
-  nginx:
-    image: nginx:latest
-    container_name: myapp-nginx
     ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-    depends_on:
-      - app
+      - "$APP_PORT:80"
 COMPOSE
+EOF
+success "Docker Compose file created."
 
-# Create Nginx config file
-cat > nginx.conf <<NGINX
+# =====================================================
+# STEP 6 — BUILD AND RUN DOCKER CONTAINERS
+# =====================================================
+info "Building and running Docker containers..."
+ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
+  cd /home/$SSH_USER/app
+  # Stop existing containers safely
+  docker-compose down || true
+  # Build and start containers
+  docker-compose up -d --build
+EOF
+success "Docker Compose containers deployed successfully."
+
+# =====================================================
+# STEP 7 — CONFIGURE NGINX REVERSE PROXY
+# =====================================================
+info "Configuring Nginx reverse proxy..."
+ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
+sudo bash -c "cat > /etc/nginx/sites-available/default <<NGINXCONF
 server {
     listen 80;
     server_name _;
 
     location / {
-        proxy_pass http://app:80;
+        proxy_pass http://localhost:$APP_PORT;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
     }
 }
-NGINX
+NGINXCONF"
 
-# Stop and remove existing containers if any
-docker-compose down || true
-
-# Build and start containers
-docker-compose up -d --build
+# Test and reload Nginx safely
+sudo nginx -t
+sudo systemctl reload nginx
 EOF
-success "Docker Compose deployment complete. Both app and Nginx containers are running."
+success "Nginx configured successfully."
 
 # =====================================================
-# STEP 6 — VALIDATE DEPLOYMENT
+# STEP 8 — VALIDATE DEPLOYMENT
 # =====================================================
 info "Validating deployment..."
 ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<'EOF'
@@ -139,7 +143,7 @@ EOF
 success "Deployment complete. Visit your server IP in the browser!"
 
 # =====================================================
-# STEP 7 — CLEANUP OPTION
+# STEP 9 — CLEANUP OPTION
 # =====================================================
 if [[ "$1" == "--cleanup" ]]; then
   warn "Running cleanup operation..."
@@ -147,6 +151,8 @@ if [[ "$1" == "--cleanup" ]]; then
     docker-compose down
     docker system prune -af
     sudo rm -rf ~/app
+    sudo rm -f /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+    sudo systemctl reload nginx
 EOF
   success "All resources removed successfully."
   exit 0
