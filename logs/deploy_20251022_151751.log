@@ -1,0 +1,285 @@
+
+=== 🧠 Deployment Setup ===
+Enter GitHub Repo URL: Enter GitHub Personal Access Token: Enter Branch name (default: main): Enter SSH Username: Enter Server IP Address: Enter SSH Key Path: Enter Application Internal Port (container port, e.g., 80): [INFO] Preparing remote directory...
+Pseudo-terminal will not be allocated because stdin is not a terminal.
+Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.14.0-1011-aws x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Wed Oct 22 14:19:07 UTC 2025
+
+  System load:  0.0               Temperature:           -273.1 C
+  Usage of /:   33.5% of 6.71GB   Processes:             114
+  Memory usage: 31%               Users logged in:       0
+  Swap usage:   0%                IPv4 address for ens5: 172.31.21.208
+
+
+Expanded Security Maintenance for Applications is not enabled.
+
+59 updates can be applied immediately.
+29 of these updates are standard security updates.
+To see these additional updates run: apt list --upgradable
+
+1 additional security update can be applied with ESM Apps.
+Learn more about enabling ESM Apps service at https://ubuntu.com/esm
+
+
+[SUCCESS] Remote directory ready.
+[INFO] Cloning repository on remote server...
+Pseudo-terminal will not be allocated because stdin is not a terminal.
+Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.14.0-1011-aws x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Wed Oct 22 14:19:07 UTC 2025
+
+  System load:  0.0               Temperature:           -273.1 C
+  Usage of /:   33.5% of 6.71GB   Processes:             114
+  Memory usage: 31%               Users logged in:       0
+  Swap usage:   0%                IPv4 address for ens5: 172.31.21.208
+
+
+Expanded Security Maintenance for Applications is not enabled.
+
+59 updates can be applied immediately.
+29 of these updates are standard security updates.
+To see these additional updates run: apt list --upgradable
+
+1 additional security update can be applied with ESM Apps.
+Learn more about enabling ESM Apps service at https://ubuntu.com/esm
+
+
+Cloning into '.'...
+[SUCCESS] Repository cloned/updated.
+[INFO] Installing Docker & Docker Compose...
+Pseudo-terminal will not be allocated because stdin is not a terminal.
+Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.14.0-1011-aws x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Wed Oct 22 14:19:07 UTC 2025
+
+  System load:  0.0               Temperature:           -273.1 C
+  Usage of /:   33.5% of 6.71GB   Processes:             114
+  Memory usage: 31%               Users logged in:       0
+  Swap usage:   0%                IPv4 address for ens5: 172.31.21.208
+
+
+Expanded Security Maintenance for Applications is not enabled.
+
+59 updates can be applied immediately.
+29 of these updates are standard security updates.
+To see these additional updates run: apt list --upgradable
+
+1 additional security update can be applied with ESM Apps.
+Learn more about enabling ESM Apps service at https://ubuntu.com/esm
+
+
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Hit:1 http://us-east-1.ec2.archive.ubuntu.com/ubuntu noble InRelease
+Hit:2 http://us-east-1.ec2.archive.ubuntu.com/ubuntu noble-updates InRelease
+Hit:3 http://us-east-1.ec2.archive.ubuntu.com/ubuntu noble-backports InRelease
+Hit:4 http://security.ubuntu.com/ubuntu noble-security InRelease
+Reading package lists...
+Building dependency tree...
+Reading state information...
+55 packages can be upgraded. Run 'apt list --upgradable' to see them.
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+docker.io is already the newest version (28.2.2-0ubuntu1~24.04.1).
+docker-compose is already the newest version (1.29.2-6ubuntu1).
+0 upgraded, 0 newly installed, 0 to remove and 55 not upgraded.
+Docker version 28.2.2, build 28.2.2-0ubuntu1~24.04.1
+docker-compose version 1.29.2, build unknown
+[SUCCESS] Dependencies installed successfully.
+[INFO] Creating Nginx config for Docker...
+Pseudo-terminal will not be allocated because stdin is not a terminal.
+Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.14.0-1011-aws x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Wed Oct 22 14:19:07 UTC 2025
+
+  System load:  0.0               Temperature:           -273.1 C
+  Usage of /:   33.5% of 6.71GB   Processes:             114
+  Memory usage: 31%               Users logged in:       0
+  Swap usage:   0%                IPv4 address for ens5: 172.31.21.208
+
+
+Expanded Security Maintenance for Applications is not enabled.
+
+59 updates can be applied immediately.
+29 of these updates are standard security updates.
+To see these additional updates run: apt list --upgradable
+
+1 additional security update can be applied with ESM Apps.
+Learn more about enabling ESM Apps service at https://ubuntu.com/esm
+
+
+[SUCCESS] Nginx config created.
+[INFO] Creating docker-compose.yml...
+Pseudo-terminal will not be allocated because stdin is not a terminal.
+Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.14.0-1011-aws x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Wed Oct 22 14:19:07 UTC 2025
+
+  System load:  0.0               Temperature:           -273.1 C
+  Usage of /:   33.5% of 6.71GB   Processes:             114
+  Memory usage: 31%               Users logged in:       0
+  Swap usage:   0%                IPv4 address for ens5: 172.31.21.208
+
+
+Expanded Security Maintenance for Applications is not enabled.
+
+59 updates can be applied immediately.
+29 of these updates are standard security updates.
+To see these additional updates run: apt list --upgradable
+
+1 additional security update can be applied with ESM Apps.
+Learn more about enabling ESM Apps service at https://ubuntu.com/esm
+
+
+[SUCCESS] Docker Compose file created.
+[INFO] Deploying containers with Docker Compose...
+Pseudo-terminal will not be allocated because stdin is not a terminal.
+Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.14.0-1011-aws x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Wed Oct 22 14:19:07 UTC 2025
+
+  System load:  0.0               Temperature:           -273.1 C
+  Usage of /:   33.5% of 6.71GB   Processes:             114
+  Memory usage: 31%               Users logged in:       0
+  Swap usage:   0%                IPv4 address for ens5: 172.31.21.208
+
+
+Expanded Security Maintenance for Applications is not enabled.
+
+59 updates can be applied immediately.
+29 of these updates are standard security updates.
+To see these additional updates run: apt list --upgradable
+
+1 additional security update can be applied with ESM Apps.
+Learn more about enabling ESM Apps service at https://ubuntu.com/esm
+
+
+Removing network app_webnet
+Network app_webnet not found.
+Creating network "app_webnet" with driver "bridge"
+Building app
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  224.8kB
+Step 1/4 : FROM nginx:latest
+latest: Pulling from library/nginx
+38513bd72563: Pulling fs layer
+10d18f46ee87: Pulling fs layer
+a8d825a0683a: Pulling fs layer
+a131bc1d4bd5: Pulling fs layer
+3818929ac19f: Pulling fs layer
+1498b1cfda15: Pulling fs layer
+c50c84d0ed4d: Pulling fs layer
+3818929ac19f: Waiting
+1498b1cfda15: Waiting
+a131bc1d4bd5: Waiting
+c50c84d0ed4d: Waiting
+a8d825a0683a: Verifying Checksum
+a8d825a0683a: Download complete
+a131bc1d4bd5: Verifying Checksum
+a131bc1d4bd5: Download complete
+3818929ac19f: Verifying Checksum
+3818929ac19f: Download complete
+1498b1cfda15: Verifying Checksum
+1498b1cfda15: Download complete
+c50c84d0ed4d: Verifying Checksum
+c50c84d0ed4d: Download complete
+38513bd72563: Verifying Checksum
+38513bd72563: Download complete
+10d18f46ee87: Verifying Checksum
+10d18f46ee87: Download complete
+38513bd72563: Pull complete
+10d18f46ee87: Pull complete
+a8d825a0683a: Pull complete
+a131bc1d4bd5: Pull complete
+3818929ac19f: Pull complete
+1498b1cfda15: Pull complete
+c50c84d0ed4d: Pull complete
+Digest: sha256:029d4461bd98f124e531380505ceea2072418fdf28752aa73b7b273ba3048903
+Status: Downloaded newer image for nginx:latest
+ ---> 657fdcd1c365
+Step 2/4 : COPY index.html /usr/share/nginx/html/index.html
+ ---> 783e00cca55a
+Step 3/4 : EXPOSE 80
+ ---> Running in 135940d5a2eb
+ ---> Removed intermediate container 135940d5a2eb
+ ---> 39940881fef7
+Step 4/4 : CMD ["nginx", "-g", "daemon off;"]
+ ---> Running in ba5a874067ce
+ ---> Removed intermediate container ba5a874067ce
+ ---> 680db45609d4
+Successfully built 680db45609d4
+Successfully tagged app_app:latest
+Creating myapp ... 
+Creating myapp ... done
+Creating nginx ... 
+Creating nginx ... done
+[SUCCESS] Containers deployed successfully.
+[INFO] Validating deployment...
+Pseudo-terminal will not be allocated because stdin is not a terminal.
+Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.14.0-1011-aws x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Wed Oct 22 14:19:07 UTC 2025
+
+  System load:  0.0               Temperature:           -273.1 C
+  Usage of /:   33.5% of 6.71GB   Processes:             114
+  Memory usage: 31%               Users logged in:       0
+  Swap usage:   0%                IPv4 address for ens5: 172.31.21.208
+
+
+Expanded Security Maintenance for Applications is not enabled.
+
+59 updates can be applied immediately.
+29 of these updates are standard security updates.
+To see these additional updates run: apt list --upgradable
+
+1 additional security update can be applied with ESM Apps.
+Learn more about enabling ESM Apps service at https://ubuntu.com/esm
+
+
+CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS         PORTS     NAMES
+7253269bc575   app_app   "/docker-entrypoint.…"   6 seconds ago   Up 5 seconds   80/tcp    myapp
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+curl: (7) Failed to connect to localhost port 80 after 0 ms: Couldn't connect to server
+[SUCCESS] Deployment completed! Visit your app at http://34.228.6.126
+
+🎉 Deployment logs saved to logs/deploy_20251022_151751.log
+
