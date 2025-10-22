@@ -1,15 +1,15 @@
 #!/bin/bash
 # =====================================================
-# HNG DevOps Stage 1 Project - Automated Deployment Script
+# HNG DevOps Stage 1 Project - Remote Deployment Script
 # Author: AiyusTech
-# Description: Automates the setup and deployment of a Dockerized app
+# Description: Deploys a Dockerized app directly on the server
 # =====================================================
 
 set -e
 
 # === LOGGING SETUP ===
 LOG_DIR="logs"
-mkdir -p "$LOG_DIR"  # Create logs folder if it doesn't exist
+mkdir -p "$LOG_DIR"
 
 LOG_FILE="$LOG_DIR/deploy_$(date +%Y%m%d_%H%M%S).log"
 exec > >(tee -a "$LOG_FILE") 2>&1
@@ -32,106 +32,106 @@ BRANCH=${BRANCH:-main}
 read -p "Enter SSH Username: " SSH_USER
 read -p "Enter Server IP Address: " SERVER_IP
 read -p "Enter SSH Key Path: " SSH_KEY
-read -p "Enter Application Port: " APP_PORT
-
-REPO_NAME=$(basename -s .git "$REPO_URL")
+read -p "Enter Application Port (local container port): " APP_PORT
 
 # =====================================================
-# STEP 2 — CLONE OR UPDATE REPOSITORY
+# STEP 2 — PREPARE REMOTE DIRECTORY
 # =====================================================
-if [ -d "$REPO_NAME" ]; then
-  info "Repository already exists. Pulling latest changes..."
-  cd "$REPO_NAME" && git pull
-else
-  info "Cloning repository..."
-  git clone https://${PAT}@${REPO_URL#https://} && cd "$REPO_NAME"
-fi
+info "Preparing remote directory for deployment..."
 
-git checkout "$BRANCH"
-success "Repository ready at branch '$BRANCH'."
-
-# =====================================================
-# STEP 3 — REMOTE SERVER SETUP
-# =====================================================
-info "Connecting to remote server and installing dependencies..."
-
-ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$SSH_USER@$SERVER_IP" << 'EOF'
+ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$SSH_USER@$SERVER_IP" <<EOF
   set -e
-  echo "Updating system packages..."
+  sudo rm -rf /home/$SSH_USER/app
+  mkdir -p /home/$SSH_USER/app
+  sudo chown -R $SSH_USER:$SSH_USER /home/$SSH_USER/app
+EOF
+
+success "Remote directory ready."
+
+# =====================================================
+# STEP 3 — CLONE OR UPDATE REPO ON SERVER
+# =====================================================
+info "Cloning repository on remote server..."
+
+ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
+  set -e
+  cd /home/$SSH_USER/app
+
+  if [ -d ".git" ]; then
+    echo "Repository exists. Pulling latest changes..."
+    git pull
+  else
+    git clone -b $BRANCH https://${PAT}@${REPO_URL#https://} .
+  fi
+EOF
+
+success "Repository cloned/updated on remote server."
+
+# =====================================================
+# STEP 4 — INSTALL DEPENDENCIES
+# =====================================================
+info "Installing Docker, Docker Compose, and Nginx..."
+
+ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<'EOF'
+  set -e
   sudo apt update -y
-
-  echo "Installing Docker, Docker Compose, and Nginx..."
   sudo apt install -y docker.io docker-compose nginx
-
-  echo "Enabling and starting Docker service..."
   sudo systemctl enable docker
   sudo systemctl start docker
   sudo usermod -aG docker $USER
-
-  echo "Verifying installations..."
   docker --version
   nginx -v
 EOF
 
-success "Remote server setup complete."
+success "Dependencies installed successfully."
 
 # =====================================================
-# STEP 4 — TRANSFER PROJECT FILES
+# STEP 5 — BUILD AND RUN DOCKER CONTAINER
 # =====================================================
-info "Transferring project files to remote server..."
-scp -i "$SSH_KEY" -r . "$SSH_USER@$SERVER_IP:/home/$SSH_USER/app"
-success "Project files successfully transferred."
+info "Building and running Docker container..."
 
-# =====================================================
-# STEP 5 — DEPLOY DOCKER CONTAINER
-# =====================================================
-info "Deploying Dockerized application..."
-
-ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" << 'EOF'
+ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
   set -e
-  cd ~/app
+  cd /home/$SSH_USER/app
 
   echo "Building Docker image..."
   docker build -t myapp .
 
-  echo "Checking for existing myapp container..."
-  # Stop and remove old container if it exists (running or stopped)
-  if [ "$(docker ps -a -q -f name=myapp)" ]; then
-    echo "Removing existing myapp container..."
+  echo "Stopping and removing existing container if it exists..."
+  if [ "\$(docker ps -a -q -f name=myapp)" ]; then
     docker rm -f myapp
   fi
 
   echo "Running new container..."
-  docker run -d -p 8082:80 --name myapp myapp
+  docker run -d -p $APP_PORT:80 --name myapp myapp
 EOF
 
 success "Docker container deployed successfully."
-
 
 # =====================================================
 # STEP 6 — CONFIGURE NGINX REVERSE PROXY
 # =====================================================
 info "Configuring Nginx reverse proxy..."
 
-ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP"  <<'EOF'
-set -e
-sudo bash -c 'cat > /etc/nginx/sites-available/default <<NGINXCONF
+ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
+sudo bash -c 'cat > /etc/nginx/sites-available/myapp <<NGINX_CONF
 server {
     listen 80;
     server_name _;
+
     location / {
-        proxy_pass http://localhost:8080;
+        proxy_pass http://localhost:$APP_PORT;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_cache_bypass \$http_upgrade;
     }
-
-    # SSL placeholder for future use
-    # ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
-    # ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
 }
-NGINXCONF'
+NGINX_CONF'
 
+sudo ln -sf /etc/nginx/sites-available/myapp /etc/nginx/sites-enabled/myapp
 sudo nginx -t
 sudo systemctl reload nginx
 EOF
@@ -143,9 +143,9 @@ success "Nginx configured successfully."
 # =====================================================
 info "Validating deployment..."
 
-ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" << 'EOF'
-  docker ps
-  curl -I localhost
+ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<'EOF'
+docker ps
+curl -I localhost
 EOF
 
 success "Deployment complete. Visit your server IP in the browser!"
@@ -155,7 +155,7 @@ success "Deployment complete. Visit your server IP in the browser!"
 # =====================================================
 if [[ "$1" == "--cleanup" ]]; then
   warn "Running cleanup operation..."
-  ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" << 'EOF'
+  ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<'EOF'
     docker stop $(docker ps -q) || true
     docker system prune -af
     sudo rm -rf ~/app
