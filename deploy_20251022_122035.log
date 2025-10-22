@@ -1,7 +1,0 @@
-============================================
-[INFO] Starting Automated Deployment Script
-============================================
-Enter Git Repository URL (default: https://github.com/aiyus2020/scripts-deployment): Enter branch name (default: main): Enter remote SSH username: Enter remote host IP or DNS: Enter SSH port (default: 22): [INFO] Git: https://github.com/aiyus2020/scripts-deployment | Branch: main
-[INFO] Target Server: ubuntu@34.201.50.57:22
-[INFO] Checking SSH connectivity...
-[ERROR] SSH connection failed. Exiting.
