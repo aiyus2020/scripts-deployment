@@ -64,23 +64,23 @@ success "Repository cloned/updated."
 # STEP 4 — INSTALL DEPENDENCIES (Docker & Compose)
 # =====================================================
 info "Installing Docker & Docker Compose..."
-ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<'EOF'
+ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
 set -e
 sudo apt update -y
 sudo apt install -y docker.io docker-compose
 sudo systemctl enable docker
 sudo systemctl start docker
 
-# ✅ Fix permission issues
-sudo usermod -aG docker $USER
+# ✅ Fix permission issues for the actual SSH user
+sudo usermod -aG docker $SSH_USER
 sudo chown root:docker /var/run/docker.sock || true
 sudo chmod 660 /var/run/docker.sock || true
 
-# ✅ Verify Docker setup
 docker --version
 docker-compose --version
 EOF
 success "Dependencies installed successfully."
+
 
 # =====================================================
 # STEP 5 — CREATE NGINX CONFIG (inside repo)
@@ -151,9 +151,8 @@ ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
 set -e
 cd ~/app
 
-# ✅ Ensure Docker permissions are valid before running Compose
 sudo systemctl start docker
-sudo usermod -aG docker $USER
+sudo usermod -aG docker $SSH_USER
 sudo chown root:docker /var/run/docker.sock || true
 sudo chmod 660 /var/run/docker.sock || true
 
@@ -161,6 +160,7 @@ docker-compose down || true
 docker-compose up -d --build
 EOF
 success "Containers deployed successfully."
+
 
 # =====================================================
 # STEP 8 — VALIDATE DEPLOYMENT
