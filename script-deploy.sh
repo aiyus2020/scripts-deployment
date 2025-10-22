@@ -2,7 +2,7 @@
 # =====================================================
 # HNG DevOps Stage 1 Deployment Script - Containerized
 # Author: AiyusTech
-# Description: Deploys app + Nginx inside Docker containers
+# Description: Deploys app + Nginx inside Docker containers safely
 # =====================================================
 
 set -e
@@ -88,7 +88,7 @@ server {
     server_name _;
 
     location / {
-        proxy_pass http://app:80;
+        proxy_pass http://app:$APP_PORT;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -113,7 +113,7 @@ services:
     build: .
     container_name: app
     expose:
-      - "80"
+      - "$APP_PORT"
     networks:
       - webnet
 
@@ -137,14 +137,14 @@ EOF
 success "Docker Compose file created."
 
 # =====================================================
-# STEP 7 — DEPLOY CONTAINERS
+# STEP 7 — DEPLOY CONTAINERS WITH SUDO
 # =====================================================
 info "Deploying containers with Docker Compose..."
 ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
 set -e
 cd ~/app
-docker-compose down || true
-docker-compose up -d --build
+sudo docker-compose down || true
+sudo docker-compose up -d --build
 EOF
 success "Containers deployed successfully."
 
@@ -153,7 +153,7 @@ success "Containers deployed successfully."
 # =====================================================
 info "Validating deployment..."
 ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
-docker ps
+sudo docker ps
 curl -I http://localhost
 EOF
 success "Deployment completed! Visit your app at http://$SERVER_IP"
