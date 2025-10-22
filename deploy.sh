@@ -71,19 +71,17 @@ sudo apt install -y docker.io docker-compose
 sudo systemctl enable docker
 sudo systemctl start docker
 
-# ✅ Fix permission issues for the actual SSH user
+# ✅ Fix Docker permission issues
 sudo usermod -aG docker $SSH_USER
-sudo chown root:docker /var/run/docker.sock || true
-sudo chmod 660 /var/run/docker.sock || true
+sudo chmod 666 /var/run/docker.sock || true
 
 docker --version
 docker-compose --version
 EOF
 success "Dependencies installed successfully."
 
-
 # =====================================================
-# STEP 5 — CREATE NGINX CONFIG (inside repo)
+# STEP 5 — CREATE NGINX CONFIG
 # =====================================================
 info "Creating Nginx config for Docker..."
 ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
@@ -128,7 +126,7 @@ services:
     image: nginx:latest
     container_name: nginx
     ports:
-      - "5007:80"
+      - "80:80"     # ✅ Expose publicly
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
@@ -150,17 +148,10 @@ info "Deploying containers with Docker Compose..."
 ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
 set -e
 cd ~/app
-
-sudo systemctl start docker
-sudo usermod -aG docker $SSH_USER
-sudo chown root:docker /var/run/docker.sock || true
-sudo chmod 660 /var/run/docker.sock || true
-
 docker-compose down || true
 docker-compose up -d --build
 EOF
 success "Containers deployed successfully."
-
 
 # =====================================================
 # STEP 8 — VALIDATE DEPLOYMENT
@@ -170,6 +161,7 @@ ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
 docker ps
 curl -I http://localhost || true
 EOF
+
 success "Deployment completed! Visit your app at http://$SERVER_IP"
 
 echo -e "\n🎉 Deployment logs saved to $LOG_FILE\n"
