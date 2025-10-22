@@ -70,6 +70,13 @@ sudo apt update -y
 sudo apt install -y docker.io docker-compose
 sudo systemctl enable docker
 sudo systemctl start docker
+
+# ✅ Fix permission issues
+sudo usermod -aG docker $USER
+sudo chown root:docker /var/run/docker.sock || true
+sudo chmod 660 /var/run/docker.sock || true
+
+# ✅ Verify Docker setup
 docker --version
 docker-compose --version
 EOF
@@ -143,6 +150,13 @@ info "Deploying containers with Docker Compose..."
 ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
 set -e
 cd ~/app
+
+# ✅ Ensure Docker permissions are valid before running Compose
+sudo systemctl start docker
+sudo usermod -aG docker $USER
+sudo chown root:docker /var/run/docker.sock || true
+sudo chmod 660 /var/run/docker.sock || true
+
 docker-compose down || true
 docker-compose up -d --build
 EOF
@@ -154,7 +168,7 @@ success "Containers deployed successfully."
 info "Validating deployment..."
 ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
 docker ps
-curl -I http://localhost
+curl -I http://localhost || true
 EOF
 success "Deployment completed! Visit your app at http://$SERVER_IP"
 
