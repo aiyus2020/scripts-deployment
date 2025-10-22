@@ -117,8 +117,8 @@ services:
   app:
     build: .
     container_name: myapp
-    expose:
-      - "$APP_PORT"
+    ports:
+      - "$APP_PORT:$APP_PORT"   # ✅ Make app port accessible to Nginx
     networks:
       - webnet
 
@@ -126,7 +126,7 @@ services:
     image: nginx:latest
     container_name: nginx
     ports:
-      - "80:80"     # ✅ Expose publicly
+      - "80:80"                 # ✅ Expose publicly for web access
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
