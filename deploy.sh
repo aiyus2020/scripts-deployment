@@ -159,9 +159,9 @@ success "Containers deployed successfully."
 info "Validating deployment..."
 ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
 docker ps
-curl -I http://localhost:8080 || true
+curl -I http://localhost || true
 EOF
 
-success "Deployment completed! Visit your app at http://$SERVER_IP:8080"
+success "Deployment completed! Visit your app at http://$SERVER_IP"
 
 echo -e "\n🎉 Deployment logs saved to $LOG_FILE\n"
