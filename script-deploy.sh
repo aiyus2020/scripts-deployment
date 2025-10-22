@@ -2,7 +2,7 @@
 # =====================================================
 # HNG DevOps Stage 1 Project - Remote Deployment Script
 # Author: AiyusTech
-# Description: Deploys a Dockerized app with Docker Compose and Nginx reverse proxy
+# Description: Deploys a Dockerized app directly on the server with Nginx reverse proxy
 # =====================================================
 
 set -e
@@ -30,17 +30,17 @@ BRANCH=${BRANCH:-main}
 read -p "Enter SSH Username: " SSH_USER
 read -p "Enter Server IP Address: " SERVER_IP
 read -p "Enter SSH Key Path: " SSH_KEY
-read -p "Enter Application Port (host port to map to container 80): " APP_PORT
+read -p "Enter Application Port (local container port): " APP_PORT
 
 # =====================================================
 # STEP 2 — PREPARE REMOTE DIRECTORY
 # =====================================================
 info "Preparing remote directory for deployment..."
 ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$SSH_USER@$SERVER_IP" <<EOF
-  set -e
-  sudo rm -rf /home/$SSH_USER/app
-  mkdir -p /home/$SSH_USER/app
-  sudo chown -R $SSH_USER:$SSH_USER /home/$SSH_USER/app
+set -e
+sudo rm -rf /home/$SSH_USER/app
+mkdir -p /home/$SSH_USER/app
+sudo chown -R $SSH_USER:$SSH_USER /home/$SSH_USER/app
 EOF
 success "Remote directory ready."
 
@@ -49,70 +49,65 @@ success "Remote directory ready."
 # =====================================================
 info "Cloning repository on remote server..."
 ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
-  set -e
-  cd /home/$SSH_USER/app
-  if [ -d ".git" ]; then
+set -e
+cd /home/$SSH_USER/app
+if [ -d ".git" ]; then
     echo "Repository exists. Pulling latest changes..."
     git pull
-  else
+else
     git clone -b $BRANCH https://${PAT}@${REPO_URL#https://} .
-  fi
+fi
 EOF
 success "Repository cloned/updated on remote server."
 
 # =====================================================
 # STEP 4 — INSTALL DEPENDENCIES
 # =====================================================
-info "Installing Docker, Docker Compose, and Nginx..."
+info "Installing Docker and Nginx..."
 ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<'EOF'
-  set -e
-  sudo apt update -y
-  sudo apt install -y docker.io docker-compose nginx
-  sudo systemctl enable docker
-  sudo systemctl start docker
-  sudo usermod -aG docker $USER
-  docker --version
-  nginx -v
+set -e
+sudo apt update -y
+sudo apt install -y docker.io docker-compose nginx
+sudo systemctl enable docker
+sudo systemctl start docker
+sudo usermod -aG docker $USER
+docker --version
+nginx -v
 EOF
 success "Dependencies installed successfully."
 
 # =====================================================
-# STEP 5 — CREATE DOCKER COMPOSE FILE
+# STEP 5 — BUILD AND RUN DOCKER CONTAINER
 # =====================================================
-info "Creating Docker Compose file on server..."
+info "Building and running Docker container..."
 ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
-  cd /home/$SSH_USER/app
-  cat > docker-compose.yml <<COMPOSE
-version: '3.8'
-services:
-  app:
-    build: .
-    container_name: myapp
-    ports:
-      - "$APP_PORT:80"
-COMPOSE
+set -e
+cd /home/$SSH_USER/app
+echo "Building Docker image..."
+docker build -t myapp .
+
+echo "Stopping and removing existing container if it exists..."
+if [ "\$(docker ps -a -q -f name=myapp)" ]; then
+    docker rm -f myapp
+fi
+
+echo "Running new container..."
+docker run -d -p $APP_PORT:80 --name myapp myapp
 EOF
-success "Docker Compose file created."
+success "Docker container deployed successfully."
 
 # =====================================================
-# STEP 6 — BUILD AND RUN DOCKER CONTAINERS
-# =====================================================
-info "Building and running Docker containers..."
-ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
-  cd /home/$SSH_USER/app
-  # Stop existing containers safely
-  docker-compose down || true
-  # Build and start containers
-  docker-compose up -d --build
-EOF
-success "Docker Compose containers deployed successfully."
-
-# =====================================================
-# STEP 7 — CONFIGURE NGINX REVERSE PROXY
+# STEP 6 — CONFIGURE NGINX REVERSE PROXY
 # =====================================================
 info "Configuring Nginx reverse proxy..."
 ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
-sudo bash -c "cat > /etc/nginx/sites-available/default <<NGINXCONF
+set -e
+
+# Remove old site links
+sudo rm -f /etc/nginx/sites-enabled/default
+
+# Write new Nginx config with correct syntax
+sudo bash -c "cat > /etc/nginx/sites-available/default <<'NGINXCONF'
 server {
     listen 80;
     server_name _;
@@ -126,14 +121,16 @@ server {
 }
 NGINXCONF"
 
-# Test and reload Nginx safely
+# Link and reload
+sudo ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+echo "[REMOTE] Testing Nginx config..."
 sudo nginx -t
 sudo systemctl reload nginx
 EOF
 success "Nginx configured successfully."
 
 # =====================================================
-# STEP 8 — VALIDATE DEPLOYMENT
+# STEP 7 — VALIDATE DEPLOYMENT
 # =====================================================
 info "Validating deployment..."
 ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<'EOF'
@@ -143,19 +140,19 @@ EOF
 success "Deployment complete. Visit your server IP in the browser!"
 
 # =====================================================
-# STEP 9 — CLEANUP OPTION
+# STEP 8 — CLEANUP OPTION
 # =====================================================
 if [[ "$1" == "--cleanup" ]]; then
-  warn "Running cleanup operation..."
-  ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<'EOF'
-    docker-compose down
-    docker system prune -af
-    sudo rm -rf ~/app
-    sudo rm -f /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-    sudo systemctl reload nginx
+warn "Running cleanup operation..."
+ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<'EOF'
+docker stop $(docker ps -q) || true
+docker system prune -af
+sudo rm -rf ~/app
+sudo rm -f /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+sudo systemctl reload nginx
 EOF
-  success "All resources removed successfully."
-  exit 0
+success "All resources removed successfully."
+exit 0
 fi
 
 echo -e "\n====================================================="
