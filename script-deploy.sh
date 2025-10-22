@@ -113,25 +113,26 @@ success "Docker container deployed successfully."
 # =====================================================
 info "Configuring Nginx reverse proxy..."
 
-ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
-sudo bash -c 'cat > /etc/nginx/sites-available/myapp <<NGINX_CONF
+ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<'EOF'
+set -e
+sudo bash -c 'cat > /etc/nginx/sites-available/default <<NGINXCONF
 server {
     listen 80;
     server_name _;
-
     location / {
-        proxy_pass http://localhost:$APP_PORT;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection "upgrade";
+        proxy_pass http://localhost:8082;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
-        proxy_cache_bypass \$http_upgrade;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
     }
-}
-NGINX_CONF'
 
-sudo ln -sf /etc/nginx/sites-available/myapp /etc/nginx/sites-enabled/myapp
+    # SSL placeholder for future use
+    # ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
+    # ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+}
+NGINXCONF'
+
+echo "[REMOTE] Testing and reloading Nginx..."
 sudo nginx -t
 sudo systemctl reload nginx
 EOF
