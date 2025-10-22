@@ -122,7 +122,7 @@ services:
     restart: always
     container_name: nginx
     ports:
-      - "80:80"
+      - "5007:80"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
