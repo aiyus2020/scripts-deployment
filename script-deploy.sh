@@ -1,8 +1,8 @@
 #!/bin/bash
 # =====================================================
-# HNG DevOps Stage 1 Project - Remote Deployment Script
+# HNG DevOps Stage 1 Deployment Script - Containerized
 # Author: AiyusTech
-# Description: Deploys a Dockerized app directly on the server with Nginx reverse proxy
+# Description: Deploys app + Nginx inside Docker containers
 # =====================================================
 
 set -e
@@ -11,7 +11,8 @@ set -e
 LOG_DIR="logs"
 mkdir -p "$LOG_DIR"
 LOG_FILE="$LOG_DIR/deploy_$(date +%Y%m%d_%H%M%S).log"
-exec > >(tee -a "$LOG_FILE") 2>&1
+exec > >(tee -i "$LOG_FILE")
+exec 2>&1
 trap 'echo -e "\n[❌ ERROR] Something failed. Check $LOG_FILE for details.\n" >&2' ERR
 
 # === HELPER FUNCTIONS ===
@@ -30,17 +31,16 @@ BRANCH=${BRANCH:-main}
 read -p "Enter SSH Username: " SSH_USER
 read -p "Enter Server IP Address: " SERVER_IP
 read -p "Enter SSH Key Path: " SSH_KEY
-read -p "Enter Application Port (local container port): " APP_PORT
+read -p "Enter Application Internal Port (container port, e.g., 80): " APP_PORT
 
 # =====================================================
 # STEP 2 — PREPARE REMOTE DIRECTORY
 # =====================================================
-info "Preparing remote directory for deployment..."
+info "Preparing remote directory..."
 ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$SSH_USER@$SERVER_IP" <<EOF
 set -e
-sudo rm -rf /home/$SSH_USER/app
-mkdir -p /home/$SSH_USER/app
-sudo chown -R $SSH_USER:$SSH_USER /home/$SSH_USER/app
+sudo rm -rf ~/app
+mkdir -p ~/app
 EOF
 success "Remote directory ready."
 
@@ -50,112 +50,113 @@ success "Remote directory ready."
 info "Cloning repository on remote server..."
 ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
 set -e
-cd /home/$SSH_USER/app
+cd ~/app
 if [ -d ".git" ]; then
-    echo "Repository exists. Pulling latest changes..."
-    git pull
+  echo "Repository exists. Pulling latest changes..."
+  git pull origin $BRANCH
 else
-    git clone -b $BRANCH https://${PAT}@${REPO_URL#https://} .
+  git clone -b $BRANCH https://${PAT}@${REPO_URL#https://} .
 fi
 EOF
-success "Repository cloned/updated on remote server."
+success "Repository cloned/updated."
 
 # =====================================================
-# STEP 4 — INSTALL DEPENDENCIES
+# STEP 4 — INSTALL DEPENDENCIES (Docker & Compose)
 # =====================================================
-info "Installing Docker and Nginx..."
+info "Installing Docker & Docker Compose..."
 ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<'EOF'
 set -e
 sudo apt update -y
-sudo apt install -y docker.io docker-compose nginx
+sudo apt install -y docker.io docker-compose
 sudo systemctl enable docker
 sudo systemctl start docker
-sudo usermod -aG docker $USER
 docker --version
-nginx -v
+docker-compose --version
 EOF
 success "Dependencies installed successfully."
 
 # =====================================================
-# STEP 5 — BUILD AND RUN DOCKER CONTAINER
+# STEP 5 — CREATE NGINX CONFIG (inside repo)
 # =====================================================
-info "Building and running Docker container..."
+info "Creating Nginx config for Docker..."
 ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
 set -e
-cd /home/$SSH_USER/app
-echo "Building Docker image..."
-docker build -t myapp .
-
-echo "Stopping and removing existing container if it exists..."
-if [ "\$(docker ps -a -q -f name=myapp)" ]; then
-    docker rm -f myapp
-fi
-
-echo "Running new container..."
-docker run -d -p $APP_PORT:80 --name myapp myapp
-EOF
-success "Docker container deployed successfully."
-
-# =====================================================
-# STEP 6 — CONFIGURE NGINX REVERSE PROXY
-# =====================================================
-info "Configuring Nginx reverse proxy..."
-ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
-set -e
-
-# Remove old site links
-sudo rm -f /etc/nginx/sites-enabled/default
-
-# Write new Nginx config with correct syntax
-sudo bash -c "cat > /etc/nginx/sites-available/default <<'NGINXCONF'
+mkdir -p ~/app/nginx
+cat > ~/app/nginx/default.conf <<NGINXCONF
 server {
     listen 80;
     server_name _;
 
     location / {
-        proxy_pass http://localhost:$APP_PORT;
+        proxy_pass http://app:$APP_PORT;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
     }
 }
-NGINXCONF"
-
-# Link and reload
-sudo ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-echo "[REMOTE] Testing Nginx config..."
-sudo nginx -t
-sudo systemctl reload nginx
+NGINXCONF
 EOF
-success "Nginx configured successfully."
+success "Nginx config created."
 
 # =====================================================
-# STEP 7 — VALIDATE DEPLOYMENT
+# STEP 6 — CREATE DOCKER-COMPOSE FILE
+# =====================================================
+info "Creating docker-compose.yml..."
+ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
+set -e
+cat > ~/app/docker-compose.yml <<COMPOSE
+version: '3.9'
+
+services:
+  app:
+    build: .
+    container_name: myappservice
+    expose:
+      - "$APP_PORT"
+    networks:
+      - webnet
+
+  nginx:
+    image: nginx:latest
+    restart: always
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks:
+      - webnet
+
+networks:
+  webnet:
+    driver: bridge
+COMPOSE
+EOF
+success "Docker Compose file created."
+
+# =====================================================
+# STEP 7 — DEPLOY CONTAINERS
+# =====================================================
+info "Deploying containers with Docker Compose..."
+ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
+set -e
+cd ~/app
+docker-compose down || true
+docker-compose up -d --build
+EOF
+success "Containers deployed successfully."
+
+# =====================================================
+# STEP 8 — VALIDATE DEPLOYMENT
 # =====================================================
 info "Validating deployment..."
-ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<'EOF'
+ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
 docker ps
-curl -I localhost
+curl -I http://localhost
 EOF
-success "Deployment complete. Visit your server IP in the browser!"
+success "Deployment completed! Visit your app at http://$SERVER_IP"
 
-# =====================================================
-# STEP 8 — CLEANUP OPTION
-# =====================================================
-if [[ "$1" == "--cleanup" ]]; then
-warn "Running cleanup operation..."
-ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<'EOF'
-docker stop $(docker ps -q) || true
-docker system prune -af
-sudo rm -rf ~/app
-sudo rm -f /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-sudo systemctl reload nginx
-EOF
-success "All resources removed successfully."
-exit 0
-fi
-
-echo -e "\n====================================================="
-success "🎉 Deployment completed successfully!"
-echo -e "Logs saved in: $LOG_FILE"
-echo -e "=====================================================\n"
+echo -e "\n🎉 Deployment logs saved to $LOG_FILE\n"

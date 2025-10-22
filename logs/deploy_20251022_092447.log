@@ -8,17 +8,13 @@ Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.14.0-1011-aws x86_64)
  * Management:     https://landscape.canonical.com
  * Support:        https://ubuntu.com/pro
 
- System information as of Wed Oct 22 00:28:19 UTC 2025
+ System information as of Wed Oct 22 08:25:59 UTC 2025
 
-  System load:  0.08              Processes:             119
-  Usage of /:   38.6% of 6.71GB   Users logged in:       1
-  Memory usage: 30%               IPv4 address for enX0: 172.31.23.101
+  System load:  0.0               Processes:             128
+  Usage of /:   35.8% of 6.71GB   Users logged in:       0
+  Memory usage: 8%                IPv4 address for enX0: 172.31.21.242
   Swap usage:   0%
 
- * Ubuntu Pro delivers the most comprehensive open source security and
-   compliance features.
-
-   https://ubuntu.com/aws/pro
 
 Expanded Security Maintenance for Applications is not enabled.
 
@@ -39,17 +35,13 @@ Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.14.0-1011-aws x86_64)
  * Management:     https://landscape.canonical.com
  * Support:        https://ubuntu.com/pro
 
- System information as of Wed Oct 22 00:28:19 UTC 2025
+ System information as of Wed Oct 22 08:25:59 UTC 2025
 
-  System load:  0.08              Processes:             119
-  Usage of /:   38.6% of 6.71GB   Users logged in:       1
-  Memory usage: 30%               IPv4 address for enX0: 172.31.23.101
+  System load:  0.0               Processes:             128
+  Usage of /:   35.8% of 6.71GB   Users logged in:       0
+  Memory usage: 8%                IPv4 address for enX0: 172.31.21.242
   Swap usage:   0%
 
- * Ubuntu Pro delivers the most comprehensive open source security and
-   compliance features.
-
-   https://ubuntu.com/aws/pro
 
 Expanded Security Maintenance for Applications is not enabled.
 
@@ -63,7 +55,7 @@ Learn more about enabling ESM Apps service at https://ubuntu.com/esm
 
 Cloning into '.'...
 [SUCCESS] Repository cloned/updated on remote server.
-[INFO] Installing Docker, Docker Compose, and Nginx...
+[INFO] Installing Docker and Nginx...
 Pseudo-terminal will not be allocated because stdin is not a terminal.
 Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.14.0-1011-aws x86_64)
 
@@ -71,17 +63,13 @@ Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.14.0-1011-aws x86_64)
  * Management:     https://landscape.canonical.com
  * Support:        https://ubuntu.com/pro
 
- System information as of Wed Oct 22 00:28:19 UTC 2025
+ System information as of Wed Oct 22 08:25:59 UTC 2025
 
-  System load:  0.08              Processes:             119
-  Usage of /:   38.6% of 6.71GB   Users logged in:       1
-  Memory usage: 30%               IPv4 address for enX0: 172.31.23.101
+  System load:  0.0               Processes:             128
+  Usage of /:   35.8% of 6.71GB   Users logged in:       0
+  Memory usage: 8%                IPv4 address for enX0: 172.31.21.242
   Swap usage:   0%
 
- * Ubuntu Pro delivers the most comprehensive open source security and
-   compliance features.
-
-   https://ubuntu.com/aws/pro
 
 Expanded Security Maintenance for Applications is not enabled.
 
@@ -125,17 +113,13 @@ Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.14.0-1011-aws x86_64)
  * Management:     https://landscape.canonical.com
  * Support:        https://ubuntu.com/pro
 
- System information as of Wed Oct 22 00:28:19 UTC 2025
+ System information as of Wed Oct 22 08:25:59 UTC 2025
 
-  System load:  0.08              Processes:             119
-  Usage of /:   38.6% of 6.71GB   Users logged in:       1
-  Memory usage: 30%               IPv4 address for enX0: 172.31.23.101
+  System load:  0.0               Processes:             128
+  Usage of /:   35.8% of 6.71GB   Users logged in:       0
+  Memory usage: 8%                IPv4 address for enX0: 172.31.21.242
   Swap usage:   0%
 
- * Ubuntu Pro delivers the most comprehensive open source security and
-   compliance features.
-
-   https://ubuntu.com/aws/pro
 
 Expanded Security Maintenance for Applications is not enabled.
 
@@ -148,28 +132,28 @@ Learn more about enabling ESM Apps service at https://ubuntu.com/esm
 
 
 Building Docker image...
+Sending build context to Docker daemon  305.2kB
+Step 1/4 : FROM nginx:latest
+ ---> 657fdcd1c365
 DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  187.9kB
-Step 1/4 : FROM nginx:latest
- ---> 657fdcd1c365
 Step 2/4 : COPY index.html /usr/share/nginx/html/index.html
  ---> Using cache
- ---> 2d92c4dc3b2b
+ ---> 852ab0197881
 Step 3/4 : EXPOSE 80
  ---> Using cache
- ---> 7f95ce691f78
+ ---> 7f59e59f9da2
 Step 4/4 : CMD ["nginx", "-g", "daemon off;"]
  ---> Using cache
- ---> ed49cd23fb51
-Successfully built ed49cd23fb51
+ ---> 03df964c086f
+Successfully built 03df964c086f
 Successfully tagged myapp:latest
 Stopping and removing existing container if it exists...
 myapp
 Running new container...
-06a20be0395a3d25e0775873e8c6772fc7bf94efaa60efdd32ceeb8fef0e5a4a
+4cc99e39eee39c3d32eaf7046803589cbb5c6c94d8744d63cb838426b6bcf788
 [SUCCESS] Docker container deployed successfully.
 [INFO] Configuring Nginx reverse proxy...
 Pseudo-terminal will not be allocated because stdin is not a terminal.
@@ -179,17 +163,13 @@ Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.14.0-1011-aws x86_64)
  * Management:     https://landscape.canonical.com
  * Support:        https://ubuntu.com/pro
 
- System information as of Wed Oct 22 00:28:19 UTC 2025
+ System information as of Wed Oct 22 08:25:59 UTC 2025
 
-  System load:  0.08              Processes:             119
-  Usage of /:   38.6% of 6.71GB   Users logged in:       1
-  Memory usage: 30%               IPv4 address for enX0: 172.31.23.101
+  System load:  0.0               Processes:             128
+  Usage of /:   35.8% of 6.71GB   Users logged in:       0
+  Memory usage: 8%                IPv4 address for enX0: 172.31.21.242
   Swap usage:   0%
 
- * Ubuntu Pro delivers the most comprehensive open source security and
-   compliance features.
-
-   https://ubuntu.com/aws/pro
 
 Expanded Security Maintenance for Applications is not enabled.
 
@@ -201,9 +181,9 @@ To see these additional updates run: apt list --upgradable
 Learn more about enabling ESM Apps service at https://ubuntu.com/esm
 
 
-[REMOTE] Testing and reloading Nginx...
-2025/10/22 00:28:38 [emerg] 12675#12675: invalid number of arguments in "proxy_set_header" directive in /etc/nginx/sites-enabled/myapp:8
+[REMOTE] Testing Nginx config...
+2025/10/22 08:26:22 [emerg] 4075#4075: invalid number of arguments in "proxy_set_header" directive in /etc/nginx/sites-enabled/default:7
 nginx: configuration file /etc/nginx/nginx.conf test failed
 
-[❌ ERROR] Something failed. Check logs/deploy_20251022_012710.log for details.
+[❌ ERROR] Something failed. Check logs/deploy_20251022_092447.log for details.
 
