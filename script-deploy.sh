@@ -103,7 +103,7 @@ info "Configuring Nginx reverse proxy..."
 ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
 set -e
 
-# Use sudo to write Nginx config safely
+# Create Nginx configuration with correct syntax
 sudo bash -c "cat > /etc/nginx/sites-available/default <<NGINXCONF
 server {
     listen 80;
@@ -116,21 +116,20 @@ server {
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection \"upgrade\";
+        proxy_set_header Connection 'upgrade';
         proxy_cache_bypass \$http_upgrade;
     }
 }
 NGINXCONF"
 
-# Test Nginx configuration
+# Test and reload Nginx safely
 echo "[REMOTE] Testing Nginx config..."
 sudo nginx -t
-
-# Reload Nginx to apply changes
 sudo systemctl reload nginx
 EOF
 
 success "Nginx configured successfully."
+
 
 
 # =====================================================
