@@ -2,7 +2,7 @@
 # =====================================================
 # HNG DevOps Stage 1 Deployment Script - Containerized
 # Author: AiyusTech
-# Description: Deploys app + Nginx inside Docker containers safely
+# Description: Deploys app + Nginx inside Docker containers
 # =====================================================
 
 set -e
@@ -31,7 +31,8 @@ BRANCH=${BRANCH:-main}
 read -p "Enter SSH Username: " SSH_USER
 read -p "Enter Server IP Address: " SERVER_IP
 read -p "Enter SSH Key Path: " SSH_KEY
-read -p "Enter Application Port inside container (usually 80): " APP_PORT
+APP_PORT=80
+info "App container internal port set to $APP_PORT"
 
 # =====================================================
 # STEP 2 — PREPARE REMOTE DIRECTORY
@@ -88,7 +89,7 @@ server {
     server_name _;
 
     location / {
-        proxy_pass http://app:$APP_PORT;
+        proxy_pass http://app:80;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -113,13 +114,14 @@ services:
     build: .
     container_name: app
     expose:
-      - "$APP_PORT"
+      - "80"
     networks:
       - webnet
 
   nginx:
     image: nginx:latest
     container_name: nginx
+    restart: always
     ports:
       - "80:80"
     volumes:
@@ -137,14 +139,14 @@ EOF
 success "Docker Compose file created."
 
 # =====================================================
-# STEP 7 — DEPLOY CONTAINERS WITH SUDO
+# STEP 7 — DEPLOY CONTAINERS
 # =====================================================
 info "Deploying containers with Docker Compose..."
 ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
 set -e
 cd ~/app
-sudo docker-compose down || true
-sudo docker-compose up -d --build
+docker-compose down || true
+docker-compose up -d --build
 EOF
 success "Containers deployed successfully."
 
@@ -153,7 +155,7 @@ success "Containers deployed successfully."
 # =====================================================
 info "Validating deployment..."
 ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" <<EOF
-sudo docker ps
+docker ps
 curl -I http://localhost
 EOF
 success "Deployment completed! Visit your app at http://$SERVER_IP"

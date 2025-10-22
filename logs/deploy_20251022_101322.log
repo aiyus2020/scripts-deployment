@@ -1,0 +1,3 @@
+
+=== 🧠 Deployment Setup ===
+Enter GitHub Repo URL: Enter GitHub Personal Access Token: Enter Branch name (default: main): Enter SSH Username: Enter Server IP Address: Enter SSH Key Path: Enter Application Port inside container (usually 80): 
